@@ -1,3 +1,9 @@
 *.json
 .DS_Store
 *pie
+
+__pycache__
+.history
+.hypothesis/
+build/
+reports/
