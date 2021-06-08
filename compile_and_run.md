@@ -103,15 +103,31 @@
     --------------------------------------------
     Update taker/maker balance complete
     Program output:
-        -1767934148645837072754348846583539555162229243985316576483584053317187497879
+        0
+        99
+        400000
+        5
+        133
+        70000
+        1334
         210
-        -651977533889150871165366919318424093640123618641002405644566749426202568091
+        5
+        99
+        190000
+        0
+        133
+        12000
+        5566
         36
         -104853145814742110168993247012925585787191107073470760429852543341862106182
         -1366500469229165540160001907124508045981242018234589343985034629748046879123
     ```
-    - `210` and `36` are the fees collected
-    - `-1767934148645837072754348846583539555162229243985316576483584053317187497879` and `-651977533889150871165366919318424093640123618641002405644566749426202568091` are transaction hashes
+    - first eight outputs are data of first transaction
+        - `0`, `99` and `400000` being `taker_account_id`, `taker_token_id` and `taker_token_amount` respectively
+        - `5`, `133` and `70000` being `maker_account_id`, `maker_token_id` and `maker_token_amount` respectively
+        - `1334` is `salt`
+        - `210` is fee collected
+        - same for next eight outputs
     - `-104853145814742110168993247012925585787191107073470760429852543341862106182` is the pre state root
     - `-1366500469229165540160001907124508045981242018234589343985034629748046879123` is the post state root
     - you can run `python practices/fill_order/utils/compute_root.py` and input `first_batch_input` to see the produced pre/post state tree roots

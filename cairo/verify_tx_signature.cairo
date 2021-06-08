@@ -4,7 +4,7 @@ from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.signature import (
     verify_ecdsa_signature)
 
-from cairo.data_struct import (SwapTransaction, TransactionHashOutput)
+from cairo.data_struct import SwapTransaction
 
 # Returns a hash committing to the transaction using the
 # following formula:
@@ -39,16 +39,10 @@ func hash_transaction{pedersen_ptr : HashBuiltin*}(
 end
 
 func verify_tx_signature{
-        output_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         ecdsa_ptr : SignatureBuiltin*}(
         transaction : SwapTransaction*, pub_key_a, pub_key_b):
     let (tx_hash) = hash_transaction(transaction)
-
-    # Write the transaction hash to the output.
-    let output = cast(output_ptr, TransactionHashOutput*)
-    let output_ptr = output_ptr + TransactionHashOutput.SIZE
-    assert output.tx_hash = tx_hash
 
     # Verify a and b's signature
     verify_ecdsa_signature(

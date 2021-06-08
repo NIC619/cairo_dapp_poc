@@ -4,7 +4,7 @@ from starkware.cairo.common.math import (
     assert_nn_le, assert_not_equal, unsigned_div_rem)
 
 from cairo.data_struct import (
-    BPS, FEE_BPS, FeeOutput, MAX_BALANCE, Account, State, SwapTransaction)
+    BPS, FEE_BPS, FeeOutput, MAX_BALANCE, Account, State, SwapTransaction, TransactionOutput)
 from cairo.update_account import update_account
 from cairo.verify_tx_signature import verify_tx_signature
 
@@ -76,10 +76,21 @@ func swap{
         pub_key_a,
         pub_key_b)
 
+    # Write the transaction hash to the output.
+    let transaction_output = cast(output_ptr, TransactionOutput*)
+    let output_ptr = output_ptr + TransactionOutput.SIZE
+    assert transaction_output.taker_account_id = transaction.taker_account_id
+    assert transaction_output.taker_token_id = transaction.taker_token_id
+    assert transaction_output.taker_token_amount = transaction.taker_token_amount
+    assert transaction_output.maker_account_id = transaction.maker_account_id
+    assert transaction_output.maker_token_id = transaction.maker_token_id
+    assert transaction_output.maker_token_amount = transaction.maker_token_amount
+    assert transaction_output.salt = transaction.salt
+
     # Write the fee amount to the output.
-    let output = cast(output_ptr, FeeOutput*)
+    let fee_output = cast(output_ptr, FeeOutput*)
     let output_ptr = output_ptr + FeeOutput.SIZE
-    assert output.amount = fee_b
+    assert fee_output.amount = fee_b
 
     return (state=state)
 end

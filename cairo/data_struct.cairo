@@ -41,8 +41,14 @@ struct FeeOutput:
     member amount : felt
 end
 
-struct TransactionHashOutput:
-    member tx_hash : felt
+struct TransactionOutput:
+    member taker_account_id : felt
+    member taker_token_id : felt
+    member taker_token_amount : felt
+    member maker_account_id : felt
+    member maker_token_id : felt
+    member maker_token_amount : felt
+    member salt : felt
 end
 
 struct MerkleRootsOutput:
