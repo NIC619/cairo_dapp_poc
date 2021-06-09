@@ -5,6 +5,9 @@ DIR = os.path.dirname(__file__)
 file_name = "../keys.json"
 file_path = os.path.join(DIR, file_name)
 
+def left_pad_hex_string(str, length = 64):
+    return str[:2] + str[2:].zfill(length)
+
 from starkware.crypto.signature.signature import private_to_stark_key
 
 # Generate key pairs.
@@ -16,7 +19,9 @@ for i in range(10):
     priv_key = 123456 * i + 654321  # See "Safety note" below.
     priv_keys.append(priv_key)
 
-    pub_key = hex(private_to_stark_key(priv_key))
+    pub_key = left_pad_hex_string(
+        hex(private_to_stark_key(priv_key))
+    )
     pub_keys.append(pub_key)
 
     keys_data[str(i)] = {

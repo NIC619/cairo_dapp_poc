@@ -3,15 +3,13 @@ import json
 import sys
 import copy
 
-DIR = os.path.dirname(__file__)
-
 from starkware.cairo.lang.vm.crypto import pedersen_hash
 from starkware.cairo.common.small_merkle_tree import MerkleTree
 
-BPS = 10000
-FEE_BPS = 30
-LOG_N_ACCOUNTS = 10
-LOG_N_TOKENS = 10
+from constants import BPS, FEE_BPS, LOG_N_ACCOUNTS, LOG_N_TOKENS
+from gen_keys import left_pad_hex_string
+
+DIR = os.path.dirname(__file__)
 
 def state_transition(pre_state, transactions):
     accounts = pre_state["accounts"]
@@ -71,30 +69,19 @@ def compute_merkle_root(account_ids, account_hashes):
     tree = MerkleTree(tree_height=LOG_N_ACCOUNTS, default_leaf=0)
     account_hash_pairs = list(zip(account_ids, account_hashes))
     # print(f'account hash pairs: {account_hash_pairs}')
-    print(f'tree root: {tree.compute_merkle_root(account_hash_pairs)}')
+    # print(f'tree root: {tree.compute_merkle_root(account_hash_pairs)}')
+    tree_root = tree.compute_merkle_root(account_hash_pairs)
+    return left_pad_hex_string(hex(tree_root))
 
-def main():
-    file_name = input("input file name: ")
-    file_path = os.path.join(DIR, "../" + file_name + ".json")
-    input_data = json.load(open(file_path))
-    pre_state = input_data["pre_state"]
-
-    print("pre_state:")
+def compute_root(pre_state, transactions):
+    # print("pre_state:")
     account_ids, account_hashes = compute_account_id_and_hashes(pre_state["accounts"])    
-    compute_merkle_root(account_ids, account_hashes)
-
-    transactions = input_data["transactions"]
+    pre_state_root = compute_merkle_root(account_ids, account_hashes)
 
     post_state = state_transition(copy.deepcopy(pre_state), transactions)
 
-    print("\npost_state:")
+    # print("\npost_state:")
     account_ids, account_hashes = compute_account_id_and_hashes(post_state["accounts"])    
-    compute_merkle_root(account_ids, account_hashes)
+    post_state_root = compute_merkle_root(account_ids, account_hashes)
 
-    input_data["post_state"] = post_state
-    with open(file_path, "w") as f:
-        json.dump(input_data, f, indent=4)
-        f.write("\n")
-
-if __name__ == "__main__":
-    sys.exit(main())
+    return pre_state_root, post_state, post_state_root

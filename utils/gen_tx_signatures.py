@@ -2,20 +2,12 @@ import os
 import json
 import sys
 
-DIR = os.path.dirname(__file__)
-
 from starkware.crypto.signature.signature import (
     pedersen_hash, sign)
 
-def read_keys():
-    file_name = "../keys.json"
-    file_path = os.path.join(DIR, file_name)
-    return json.load(open(file_path))
+from gen_keys import left_pad_hex_string
 
-def read_txs(file_name):
-    file_path = os.path.join(DIR, file_name)
-    input_data = json.load(open(file_path))
-    return input_data["transactions"]
+DIR = os.path.dirname(__file__)
 
 def compute_tx_hash(taker_id, taker_token_id, taker_token_amount, maker_id, maker_token_id, maker_token_amount, salt):
     taker_hash = pedersen_hash(
@@ -29,13 +21,7 @@ def compute_tx_hash(taker_id, taker_token_id, taker_token_amount, maker_id, make
     taker_maker_hash = pedersen_hash(taker_hash, maker_hash)
     return pedersen_hash(taker_maker_hash, salt)
 
-def main():
-    keys = read_keys()
-    file_name = input("input file name: ")
-    file_path = os.path.join(DIR, "../" + file_name + ".json")
-    input_data = json.load(open(file_path))
-    txs = input_data["transactions"]
-
+def gen_tx_signature(keys, txs):
     for tx in txs:
         taker_id = str(tx["taker_account_id"])
         taker_token_id = tx["taker_token_id"]
@@ -56,19 +42,13 @@ def main():
         r, s = sign(
             msg_hash=tx_hash,
             priv_key=keys[taker_id]["private_key"])
-        tx["r_a"] = hex(r)
-        tx["s_a"] = hex(s)
+        tx["r_a"] = left_pad_hex_string(hex(r))
+        tx["s_a"] = left_pad_hex_string(hex(s))
 
         r, s = sign(
             msg_hash=tx_hash,
             priv_key=keys[maker_id]["private_key"])
-        tx["r_b"] = hex(r)
-        tx["s_b"] = hex(s)
+        tx["r_b"] = left_pad_hex_string(hex(r))
+        tx["s_b"] = left_pad_hex_string(hex(s))
 
-    input_data["transactions"] = txs
-    with open(file_path, "w") as f:
-        json.dump(input_data, f, indent=4)
-        f.write("\n")
-
-if __name__ == "__main__":
-    sys.exit(main())
+    return txs
