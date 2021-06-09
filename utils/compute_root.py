@@ -69,19 +69,30 @@ def compute_merkle_root(account_ids, account_hashes):
     tree = MerkleTree(tree_height=LOG_N_ACCOUNTS, default_leaf=0)
     account_hash_pairs = list(zip(account_ids, account_hashes))
     # print(f'account hash pairs: {account_hash_pairs}')
-    # print(f'tree root: {tree.compute_merkle_root(account_hash_pairs)}')
     tree_root = tree.compute_merkle_root(account_hash_pairs)
+    print(f'tree root: {tree_root}')
     return left_pad_hex_string(hex(tree_root))
 
 def compute_root(pre_state, transactions):
-    # print("pre_state:")
+    print("pre_state:")
     account_ids, account_hashes = compute_account_id_and_hashes(pre_state["accounts"])    
     pre_state_root = compute_merkle_root(account_ids, account_hashes)
 
     post_state = state_transition(copy.deepcopy(pre_state), transactions)
 
-    # print("\npost_state:")
+    print("\npost_state:")
     account_ids, account_hashes = compute_account_id_and_hashes(post_state["accounts"])    
     post_state_root = compute_merkle_root(account_ids, account_hashes)
 
     return pre_state_root, post_state, post_state_root
+
+def main():
+    file_name = input("input file name: ")
+    file_path = os.path.join(DIR, "../" + file_name + ".json")
+    input_data = json.load(open(file_path))
+    pre_state = input_data["pre_state"]
+    txs = input_data["transactions"]
+    compute_root(pre_state, txs)
+
+if __name__ == "__main__":
+    sys.exit(main())

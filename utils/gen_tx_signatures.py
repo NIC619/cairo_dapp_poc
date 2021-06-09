@@ -9,6 +9,11 @@ from gen_keys import left_pad_hex_string
 
 DIR = os.path.dirname(__file__)
 
+def read_keys():
+    file_name = "../keys.json"
+    file_path = os.path.join(DIR, file_name)
+    return json.load(open(file_path))
+
 def compute_tx_hash(taker_id, taker_token_id, taker_token_amount, maker_id, maker_token_id, maker_token_amount, salt):
     taker_hash = pedersen_hash(
         pedersen_hash(int(taker_id), taker_token_id),
@@ -52,3 +57,18 @@ def gen_tx_signature(keys, txs):
         tx["s_b"] = left_pad_hex_string(hex(s))
 
     return txs
+
+def main():
+    keys = read_keys()
+    file_name = input("input file name: ")
+    file_path = os.path.join(DIR, "../" + file_name + ".json")
+    input_data = json.load(open(file_path))
+    txs = input_data["transactions"]
+    txs_with_sig = gen_tx_signature(keys, txs)
+    input_data["transactions"] = txs_with_sig
+    with open(file_path, "w") as f:
+        json.dump(input_data, f, indent=4)
+        f.write("\n")
+
+if __name__ == "__main__":
+    sys.exit(main())

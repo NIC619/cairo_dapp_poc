@@ -4,14 +4,9 @@ import sys
 
 from compute_root import compute_root
 from constants import BPS, FEE_BPS
-from gen_tx_signatures import gen_tx_signature
+from gen_tx_signatures import gen_tx_signature, read_keys
 
 DIR = os.path.dirname(__file__)
-
-def read_keys():
-    file_name = "../keys.json"
-    file_path = os.path.join(DIR, file_name)
-    return json.load(open(file_path))
 
 def compute_and_add_tx_fees(txs):
     for tx in txs:

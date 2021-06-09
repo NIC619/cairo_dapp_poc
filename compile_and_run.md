@@ -1,7 +1,7 @@
 ### Compile and run
 - compile: `cairo-compile cairo/main.cairo --output fill_order_compiled.json`
 - generate keys file: `python utils/gen_keys.py`
-- generate input files, example:
+- create input files, for example, `first_batch_input.json`:
 ```json
 {
     "pre_state": {
@@ -55,7 +55,7 @@
     ]
 }
 ``` 
-- generate transaction signatures: `python utils/gen_tx_signatures.py`
+- generate transaction signatures for the input: `python utils/gen_tx_signatures.py`
     - this will add "r_a", "s_a", "r_b" and "s_b" to `first_batch_input.json`
 - run the program with first batch of transactions: `cairo-run --program=fill_order_compiled.json --print_output --layout=small --program_input=first_batch_input.json --cairo_pie_output fill_order_pie`
     - output should be:
@@ -149,9 +149,13 @@
         - NOTE: program hash will be the same as long as the cairo program remains unchanged, however, fact will change based on the outputs each time
         - output should be like this:
         ```
-        program hash: 0x48b5e5ace04d89bdd9d6cdebaf46e54131b5dc6ac0ab03f322889f51a717c0c
-        program output: [210, 36, 3513649642851389103528329536082144519835916108258125939543239512794009914299, 2252002319436965673537320875970562059641865197097007355988057426387825141358]
-        fact: 0xeda8a1cd7026bb493eff1dcb1415911dcee9dad9bca845d3a95850f0de77e637
+        program hash: 0x6c4cf2c0243a767fb52890c415f68a080e1231c852f2e0cb8b78f2bea200a11
+        program output: [0, 99, 400000, 5, 133, 70000, 1334, 210, 5, 99, 190000, 0, 133, 12000, 5566, 36, 3513649642851389103528329536082144519835916108258125939543239512794009914299, 2252002319436965673537320875970562059641865197097007355988057426387825141358]
+        fact: 0x29f7920763cec19bcfef69c195d94b260c8fcc01ecdac22ceaad53689539adbe
         ```
         - note that the pre/post state roots in `program output` is the same as the ones computed in `compute_root.py` script
         - and the fact is computed based on the `program hash` and `program output`
+    - to produce inputs that you can send to on-chain verifier contract, run `python utils/process_input_for_contract.py` and input `first_batch_input`
+        - this script will produce `state.json` and `txs.json`
+            - `state.json` includes state data like state root, account ids, token balances. Note that data besides state root are compiled into lists instead of mapping so that they can be processed by contract
+        - check out the test to see how are these two files are being processed and sent to contract
