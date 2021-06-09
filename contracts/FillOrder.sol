@@ -39,6 +39,8 @@ contract FillOrder is Ownable {
     mapping(bytes32 => uint256) accountId_;
     mapping(uint256 => Account) accounts_;
 
+    mapping(bytes32 => bool) transactionSeen_;
+
     uint8 constant TransactionSize = 8;
     struct Transaction {
         uint256 takerAccountId;
@@ -116,6 +118,10 @@ contract FillOrder is Ownable {
         return feesCollected_[tokenId];
     }
 
+    function isTransactionSeen(bytes32 transactionHash) external view returns (bool) {
+        return transactionSeen_[transactionHash];
+    }
+
     /* ========== MUTATIVE FUNCTIONS ========== */
 
     /* ========== RESTRICTED FUNCTIONS ========== */
@@ -137,6 +143,17 @@ contract FillOrder is Ownable {
             programOutput[TransactionSize * i + 5] = transactions[i].makerTokenAmount;
             programOutput[TransactionSize * i + 6] = transactions[i].salt;
             programOutput[TransactionSize * i + 7] = transactions[i].feeAmount;
+            bytes32 transactionHash = keccak256(abi.encodePacked(
+                transactions[i].takerAccountId,
+                transactions[i].takerTokenId,
+                transactions[i].takerTokenAmount,
+                transactions[i].makerAccountId,
+                transactions[i].makerTokenId,
+                transactions[i].makerTokenAmount,
+                transactions[i].salt
+            ));
+            require(!transactionSeen_[transactionHash], "Transaction seen before");
+            transactionSeen_[transactionHash] = true;
         }
         programOutput[transactions.length * TransactionSize] = stateTreeRoot_;
         programOutput[transactions.length * TransactionSize + 1] = newStateRoot;
