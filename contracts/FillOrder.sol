@@ -29,13 +29,15 @@ contract FillOrder is Ownable {
     IFactRegistry cairoVerifier_;
 
     // On-chain fee balances.
-    mapping(uint256 => uint256) public feesCollected_;
+    mapping(uint256 => uint256) feesCollected_;
 
-    // mapping(address => uint256) accountId_;
-    // mapping(uint256 => address) accountAddress_;
-    // TODO: move balances off-chain and use merkle proof of balance to withdraw
-    // On-chain tokens balances.
-    mapping(uint256 => mapping(uint256 => uint256)) tokenBalances_;
+    struct Account {
+        bytes32 publicKey;
+        // TODO: move balances off-chain and use merkle proof of balance to withdraw
+        mapping(uint256 => uint256) tokenBalances;
+    }
+    mapping(bytes32 => uint256) accountId_;
+    mapping(uint256 => Account) accounts_;
 
     uint8 constant TransactionSize = 8;
     struct Transaction {
@@ -60,6 +62,7 @@ contract FillOrder is Ownable {
         uint256 cairoProgramHash,
         // address cairoVerifier,
         uint256[] memory accountIds,
+        bytes32[] memory accountPublickeys,
         uint256[] memory accountTokenIds,
         uint256[] memory accountTokenBalances)
         public
@@ -70,7 +73,11 @@ contract FillOrder is Ownable {
 
         // Initialize the state
         for (uint256 i = 0 ; i < accountIds.length; i++) {
-            tokenBalances_[accountIds[i]][accountTokenIds[i]] = accountTokenBalances[i];
+            if (accounts_[accountIds[i]].publicKey == bytes32(0)) {
+                accounts_[accountIds[i]].publicKey = accountPublickeys[i];
+                accountId_[accountPublickeys[i]] = accountIds[i];
+            }
+            accounts_[accountIds[i]].tokenBalances[accountTokenIds[i]] = accountTokenBalances[i];
         }
     }
 
@@ -88,24 +95,24 @@ contract FillOrder is Ownable {
         return cairoProgramHash_;
     }
 
-    // function accountId(address _accountAddress) external view returns (uint256) {
-    //     return accountId_[_accountAddress];
-    // }
+    function getAccountId(bytes32 publicKey) external view returns (uint256) {
+        return accountId_[publicKey];
+    }
 
-    // function accountAddress(uint256 _accountId) external view returns (address) {
-    //     return accountAddress_[_accountId];
-    // }
+    function getAccountPublickey(uint256 accountId) external view returns (bytes32) {
+        return accounts_[accountId].publicKey;
+    }
 
     // function tokenBalance(address _accountAddress, uint256 tokenId) external view returns (uint256) {
     //     uint256 _accountId = accountId_[_accountAddress];
     //     return tokenBalances_[_accountId][tokenId];
     // }
 
-    function tokenBalance(uint256 _accountId, uint256 tokenId) external view returns (uint256) {
-        return tokenBalances_[_accountId][tokenId];
+    function getTokenBalance(uint256 accountId, uint256 tokenId) external view returns (uint256) {
+        return accounts_[accountId].tokenBalances[tokenId];
     }
 
-    function collectedFeeBalance(uint256 tokenId) external view returns (uint256) {
+    function getCollectedFeeBalance(uint256 tokenId) external view returns (uint256) {
         return feesCollected_[tokenId];
     }
 
@@ -147,10 +154,10 @@ contract FillOrder is Ownable {
             uint256 makerTokenId = transactions[i].makerTokenId;
             uint256 makerTokenAmount = transactions[i].makerTokenAmount;
             uint256 feeAmount = transactions[i].feeAmount;
-            tokenBalances_[takerAccountId][takerTokenId] = tokenBalances_[takerAccountId][takerTokenId].sub(takerTokenAmount);
-            tokenBalances_[takerAccountId][makerTokenId] = tokenBalances_[takerAccountId][makerTokenId].add(makerTokenAmount.sub(feeAmount));
-            tokenBalances_[makerAccountId][makerTokenId] = tokenBalances_[makerAccountId][makerTokenId].sub(makerTokenAmount);
-            tokenBalances_[makerAccountId][takerTokenId] = tokenBalances_[makerAccountId][takerTokenId].add(takerTokenAmount);
+            accounts_[takerAccountId].tokenBalances[takerTokenId] = accounts_[takerAccountId].tokenBalances[takerTokenId].sub(takerTokenAmount);
+            accounts_[takerAccountId].tokenBalances[makerTokenId] = accounts_[takerAccountId].tokenBalances[makerTokenId].add(makerTokenAmount.sub(feeAmount));
+            accounts_[makerAccountId].tokenBalances[makerTokenId] = accounts_[makerAccountId].tokenBalances[makerTokenId].sub(makerTokenAmount);
+            accounts_[makerAccountId].tokenBalances[takerTokenId] = accounts_[makerAccountId].tokenBalances[takerTokenId].add(takerTokenAmount);
             feesCollected_[makerTokenId] = feesCollected_[makerTokenId].add(feeAmount);
         }
 
