@@ -60,7 +60,7 @@ contract FillOrder is Ownable {
     constructor(
         uint256 stateTreeRoot,
         uint256 cairoProgramHash,
-        // address cairoVerifier,
+        address cairoVerifier,
         uint256[] memory accountIds,
         bytes32[] memory accountPublickeys,
         uint256[] memory accountTokenIds,
@@ -69,7 +69,7 @@ contract FillOrder is Ownable {
     {
         stateTreeRoot_ = stateTreeRoot;
         cairoProgramHash_ = cairoProgramHash;
-        // cairoVerifier_ = IFactRegistry(cairoVerifier);
+        cairoVerifier_ = IFactRegistry(cairoVerifier);
 
         // Initialize the state
         for (uint256 i = 0 ; i < accountIds.length; i++) {
@@ -143,7 +143,7 @@ contract FillOrder is Ownable {
         // Ensure that a corresponding proof was verified.
         bytes32 outputHash = keccak256(abi.encodePacked(programOutput));
         bytes32 fact = keccak256(abi.encodePacked(cairoProgramHash_, outputHash));
-        // require(cairoVerifier_.isValid(fact), "MISSING_CAIRO_PROOF");
+        require(cairoVerifier_.isValid(fact), "MISSING_CAIRO_PROOF");
 
         // Process transactions
         for (uint256 i = 0 ; i < transactions.length; i++) {

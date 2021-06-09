@@ -10,7 +10,7 @@ export default {
       url: "http://localhost:8545",
     },
     hardhat: {
-      chainId: 1,
+      chainId: 3,
       forking: {
         url: "",
         blockNumber: 12594300

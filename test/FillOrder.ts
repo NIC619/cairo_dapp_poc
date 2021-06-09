@@ -29,13 +29,15 @@ describe("FillOrder", function () {
 
         const stateTreeRoot = stateJson.pre_state_root
         const programHash = "0x06c4cf2c0243a767fb52890c415f68a080e1231c852f2e0cb8b78f2bea200a11"
+        const verifierAddress = "0x2886D2A190f00aA324Ac5BF5a5b90217121D5756" // Ropsten Cairo verifier
+
         fillOrder = await (await ethers.getContractFactory(
             "FillOrder",
             operator,
         )).deploy(
             stateTreeRoot,
             programHash,
-            // verifierAddress,
+            verifierAddress,
             stateJson.pre_state.account_ids,
             stateJson.pre_state.account_public_keys,
             stateJson.pre_state.account_token_ids,
