@@ -14,6 +14,8 @@ from starkware.crypto.signature.signature import private_to_stark_key
 keys_data = {}
 priv_keys = []
 pub_keys = []
+id_to_keys = {}
+pub_key_to_priv_key = {}
 
 for i in range(10):
     priv_key = 123456 * i + 654321  # See "Safety note" below.
@@ -24,11 +26,15 @@ for i in range(10):
     )
     pub_keys.append(pub_key)
 
-    keys_data[str(i)] = {
+    id_to_keys[str(i)] = {
         "public_key": pub_key,
         "private_key": priv_key
     }
 
+    pub_key_to_priv_key[pub_key] = priv_key
+
+keys_data["pub_key_to_priv_key"] = pub_key_to_priv_key
+keys_data["id_to_keys"] = id_to_keys
 keys_data["private_keys"] = priv_keys
 keys_data["public_keys"] = pub_keys
 
