@@ -14,45 +14,45 @@ def read_keys():
     file_path = os.path.join(DIR, file_name)
     return json.load(open(file_path))
 
-def compute_tx_hash(taker_id, taker_token_id, taker_token_amount, maker_id, maker_token_id, maker_token_amount, salt):
+def compute_tx_hash(taker_public_key, taker_token_id, taker_token_amount, maker_public_key, maker_token_id, maker_token_amount, salt):
     taker_hash = pedersen_hash(
-        pedersen_hash(int(taker_id), taker_token_id),
+        pedersen_hash(int(taker_public_key, 16), taker_token_id),
         taker_token_amount
     )
     maker_hash = pedersen_hash(
-        pedersen_hash(int(maker_id), maker_token_id),
+        pedersen_hash(int(maker_public_key, 16), maker_token_id),
         maker_token_amount
     )
     taker_maker_hash = pedersen_hash(taker_hash, maker_hash)
     return pedersen_hash(taker_maker_hash, salt)
 
-def gen_tx_signature(keys, txs):
+def gen_order_signature(keys, txs):
     for tx in txs:
-        taker_id = str(tx["taker_account_id"])
+        taker_public_key = str(tx["taker_public_key"])
         taker_token_id = tx["taker_token_id"]
         taker_token_amount = tx["taker_token_amount"]
-        maker_id = str(tx["maker_account_id"])
+        maker_public_key = str(tx["maker_public_key"])
         maker_token_id = tx["maker_token_id"]
         maker_token_amount = tx["maker_token_amount"]
         salt = tx["salt"]
         tx_hash = compute_tx_hash(
-            taker_id,
+            taker_public_key,
             taker_token_id,
             taker_token_amount,
-            maker_id,
+            maker_public_key,
             maker_token_id,
             maker_token_amount,
             salt)
 
         r, s = sign(
             msg_hash=tx_hash,
-            priv_key=keys[taker_id]["private_key"])
+            priv_key=keys["pub_key_to_priv_key"][taker_public_key])
         tx["r_a"] = left_pad_hex_string(hex(r))
         tx["s_a"] = left_pad_hex_string(hex(s))
 
         r, s = sign(
             msg_hash=tx_hash,
-            priv_key=keys[maker_id]["private_key"])
+            priv_key=keys["pub_key_to_priv_key"][maker_public_key])
         tx["r_b"] = left_pad_hex_string(hex(r))
         tx["s_b"] = left_pad_hex_string(hex(s))
 
@@ -64,7 +64,7 @@ def main():
     file_path = os.path.join(DIR, "../" + file_name + ".json")
     input_data = json.load(open(file_path))
     txs = input_data["transactions"]
-    txs_with_sig = gen_tx_signature(keys, txs)
+    txs_with_sig = gen_order_signature(keys, txs)
     input_data["transactions"] = txs_with_sig
     with open(file_path, "w") as f:
         json.dump(input_data, f, indent=4)
