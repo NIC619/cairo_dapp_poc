@@ -23,7 +23,7 @@ def gen_deposit_signature(keys, transaction):
         msg_hash=tx_hash,
         priv_key=priv_key)
 
-    print(f"Signature for deposit(token_id={token_id}, amount={amount}):")
+    print(f"Signature for Deposit(token_id={token_id}, amount={amount}):")
     print(f"r: {r}")
     print(f"s: {s}")
     print(f"public key: {public_key}")
@@ -51,16 +51,18 @@ def deposit(prev_state, transaction):
     return prev_state
 
 def main():
+    keys = read_keys()
     file_name = input("input file name: ")
     file_path = os.path.join(DIR, "../" + file_name + ".json")
     input_data = json.load(open(file_path))
     prev_state = input_data["pre_state"]
     tx = {}
-    tx["public_key"] = input("public key: ")
+    account_id = input("account id: ")
+    tx["public_key"] = keys["id_to_keys"][account_id]
+    print(f"public key of account id {account_id}: {tx['public_key']}")
     tx["token_id"] = input("token id: ")
     tx["amount"] = input("amount: ")
 
-    keys = read_keys()
     gen_deposit_signature(keys, tx)
 
     new_state = deposit(prev_state, tx)
