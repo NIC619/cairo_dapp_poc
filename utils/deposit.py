@@ -58,7 +58,7 @@ def main():
     prev_state = input_data["pre_state"]
     tx = {}
     account_id = input("account id: ")
-    tx["public_key"] = keys["id_to_keys"][account_id]
+    tx["public_key"] = str(keys["id_to_keys"][account_id]["public_key"])
     print(f"public key of account id {account_id}: {tx['public_key']}")
     tx["token_id"] = input("token id: ")
     tx["amount"] = input("amount: ")

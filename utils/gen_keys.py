@@ -21,9 +21,10 @@ for i in range(10):
     priv_key = 123456 * i + 654321  # See "Safety note" below.
     priv_keys.append(priv_key)
 
-    pub_key = left_pad_hex_string(
-        hex(private_to_stark_key(priv_key))
-    )
+    # pub_key = left_pad_hex_string(
+    #     hex(private_to_stark_key(priv_key))
+    # )
+    pub_key = private_to_stark_key(priv_key)
     pub_keys.append(pub_key)
 
     id_to_keys[str(i)] = {
