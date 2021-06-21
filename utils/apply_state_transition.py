@@ -11,27 +11,35 @@ def state_transition(pre_state, transactions):
     balances = pre_state["balances"]
     fee_balances = pre_state["fee_balances"]
     for transaction in transactions:
-        taker_public_key = transaction["taker_public_key"]
+        taker_public_key = str(transaction["taker_public_key"])
         taker_token_id = str(transaction["taker_token_id"])
         taker_token_amount = transaction["taker_token_amount"]
-        maker_public_key = transaction["maker_public_key"]
+        maker_public_key = str(transaction["maker_public_key"])
         maker_token_id = str(transaction["maker_token_id"])
         maker_token_amount = transaction["maker_token_amount"]
 
-        taker = balances[taker_public_key]
-        taker_balance = taker[taker_token_id]
-        assert taker_balance >= taker_token_amount
+        assert taker_token_id in balances[taker_public_key]
+        assert balances[taker_public_key][taker_token_id] > taker_token_amount
 
         maker = balances[maker_public_key]
-        maker_balance = maker[maker_token_id]
-        assert maker_balance >= maker_token_amount
+        assert maker_token_id in balances[maker_public_key]
+        assert balances[maker_public_key][maker_token_id] > maker_token_amount
 
         fee_b_amount = (maker_token_amount * FEE_BPS) // BPS
-        
+
+        # Update taker balance
+        if maker_token_id not in balances[taker_public_key]:
+            balances[taker_public_key][maker_token_id] = 0
         balances[taker_public_key][taker_token_id] -= taker_token_amount
         balances[taker_public_key][maker_token_id] += (maker_token_amount - fee_b_amount)
+        # Update maker balance
+        if taker_token_id not in balances[maker_public_key]:
+            balances[maker_public_key][taker_token_id] = 0
         balances[maker_public_key][taker_token_id] += taker_token_amount
         balances[maker_public_key][maker_token_id] -= maker_token_amount
+        # Update fee balance
+        if maker_token_id not in fee_balances:
+            fee_balances[maker_token_id] = 0
         fee_balances[maker_token_id] += fee_b_amount
     post_state = pre_state
     return post_state

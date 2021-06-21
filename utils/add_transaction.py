@@ -40,6 +40,7 @@ def main():
     print(f"s_a: {tx_with_sig['s_a']}")
     print(f"r_b: {tx_with_sig['r_b']}")
     print(f"s_b: {tx_with_sig['s_b']}")
+    print(f"salt: {tx_with_sig['salt']}")
 
     input_data["transactions"] = txs
     with open(file_path, "w") as f:
