@@ -137,6 +137,7 @@ func get_order_hash{pedersen_ptr : HashBuiltin*}(
         taker_maker_hash, order.salt)
 end
 
+@external
 func fill_order{
         storage_ptr : Storage*,
         pedersen_ptr : HashBuiltin*,
