@@ -8,10 +8,6 @@ DIR = os.path.dirname(__file__)
 
 def main():
     keys = read_keys()
-    file_name = input("input file name: ")
-    file_path = os.path.join(DIR, "../" + file_name + ".json")
-    input_data = json.load(open(file_path))
-    txs = input_data["transactions"]
 
     tx = {}
     taker_account_id = input("taker account id: ")
@@ -26,8 +22,6 @@ def main():
     tx["maker_token_amount"] = int(input("maker token amount: "))
     tx["salt"] = int(input("salt: "))
 
-    txs.append(tx)
-
     tx_with_sig = gen_order_signature(keys, tx)
     print(f"Signature for Order(")
     print(f"   taker_public_key={tx_with_sig['taker_public_key']}")
@@ -41,11 +35,6 @@ def main():
     print(f"r_b: {tx_with_sig['r_b']}")
     print(f"s_b: {tx_with_sig['s_b']}")
     print(f"salt: {tx_with_sig['salt']}")
-
-    input_data["transactions"] = txs
-    with open(file_path, "w") as f:
-        json.dump(input_data, f, indent=4)
-        f.write("\n")
 
 if __name__ == "__main__":
     sys.exit(main())
