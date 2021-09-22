@@ -1,0 +1,1 @@
+export const startnetCoreAddr = "0x5e6229F2D4d977d20A50219E521dE6Dd694d45cc"
