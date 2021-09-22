@@ -2,9 +2,9 @@
 
 ### L1 Bridge contract
 
-- L1 Bridge contract `L1Bridge.sol` is deployed at [0xA5eC539a1c7cB71555fe831D6ba18af8665d0245](https://ropsten.etherscan.io/address/0xa5ec539a1c7cb71555fe831d6ba18af8665d0245#writeContract)
-    - you can deploy `L1Bridge` contract by running `npx hardhat run scritps/deploy_l1_bridge.ts`
-    - the constructor takes in the StarkNet Core contract address which is deployed at [0xee02F29aE9A4988aE064940bF11954d6eafE26Ac](https://goerli.etherscan.io/address/0xee02F29aE9A4988aE064940bF11954d6eafE26Ac#code)
+- L1 Bridge contract `L1Bridge.sol` is deployed at [0x8AA60017c581eD84eeaA800482E18475CC4aF36a](https://ropsten.etherscan.io/address/0xa5ec539a1c7cb71555fe831d6ba18af8665d0245#writeContract)
+    - you can deploy `L1Bridge` contract by running `npx hardhat run scripts/deploy_l1_bridge.ts  --network goerli`
+    - the constructor takes in the StarkNet Core contract address which is deployed at [0x5e6229F2D4d977d20A50219E521dE6Dd694d45cc](https://goerli.etherscan.io/address/0x5e6229F2D4d977d20A50219E521dE6Dd694d45cc#code)
 - You will be using L1 Bridge contract to deposit into and withdraw from L2 contract
     - First, use `deposit` to deposit token into L1 Bridge contract
     - Next, use `depositToL2` to deposit the deposited token in previous step into L2 contract
@@ -13,7 +13,7 @@
 
 ### L2 RFQ contract
 
-~~L2 RFQ contract is deployed at [0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d](https://voyager.online/contract/0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d)~~
+~~L2 RFQ contract is deployed at [0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96](https://voyager.online/contract/0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96)~~
 Currently StarkNet state is pruned frequently so don't expect deployed contract to last.
 
 ### Or you can deploy a new contract
@@ -28,9 +28,25 @@ Currently StarkNet state is pruned frequently so don't expect deployed contract 
     - it will output contract address and transaction id, for example:
     ```
     Deploy transaction was sent.
-    Contract address: 0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d
-    Transaction ID: 107779
+    Contract address: 0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96
+    Transaction ID: 203291
     ```
+
+#### Set L1 contract address
+
+- invoke `set_L1_CONTRACT_ADDRESS` function on RFQ contract with param `new_L1_CONTRACT_ADDRESS`, for example,
+    ```
+    starknet invoke \
+        --address 0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96 \
+        --abi rfq_abi.json \
+        --function new_L1_CONTRACT_ADDRESS \
+        --inputs 791542658165672915894689935354852738633778787178
+        --network alpha
+    ```
+    - `791542658165672915894689935354852738633778787178` is equivalent to `L1Bridge` contract address `0x8AA60017c581eD84eeaA800482E18475CC4aF36a`
+#### Set L2 contract address
+
+- Execute `setL2ContractAddress` function on `L1Bridge` contract with param `l2ContractAddress`, for example, `setL2ContractAddress(0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96)`
 
 ### Interact with L2 RFQ contract
 
@@ -42,7 +58,7 @@ Currently StarkNet state is pruned frequently so don't expect deployed contract 
     - next query the contract, for example:
     ```
     starknet call \
-        --address 0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d \
+        --address 0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96 \
         --abi rfq_abi.json \
         --function get_balance \
         --inputs 798472886190004179001673494155360729135078329522332065779728082154055368978 0 \
@@ -56,7 +72,7 @@ Currently StarkNet state is pruned frequently so don't expect deployed contract 
     - for example:
     ```
     starknet call \
-        --address 0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d \
+        --address 0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96 \
         --abi rfq_abi.json \
         --function get_fee_balance \
         --inputs 3 \
@@ -96,7 +112,7 @@ Currently StarkNet state is pruned frequently so don't expect deployed contract 
     - use these transaction infos to invoke `fill_order` transactions:
     ```
     starknet invoke \
-        --address 0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d \
+        --address 0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96 \
         --abi rfq_abi.json \
         --function fill_order \
         --inputs 798472886190004179001673494155360729135078329522332065779728082154055368978 0 25000 \
@@ -118,7 +134,7 @@ Currently StarkNet state is pruned frequently so don't expect deployed contract 
 
 #### Withdraw from L2 RFQ contract
 
-- First generate signature for the withdrawal by running `python utils/gen_withdrawal_signature.py` and input `user`, `token_id` and `amount`
+- First generate signature for the withdrawal by running `python utils/gen_withdrawal_signatures.py` and input `user`, `token_id` and `amount`
     - it will output these info alogn with the signature `r` and `s`, for example:
     ```
     user: 798472886190004179001673494155360729135078329522332065779728082154055368978
@@ -131,7 +147,7 @@ Currently StarkNet state is pruned frequently so don't expect deployed contract 
 - Next invoke the `withdraw` function on L2 RFQ contract with params `user`, `token_id`, `amount` and `sig_r` and `sig_s`
     ```
     starknet invoke \
-        --address 0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d \
+        --address 0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96 \
         --abi rfq_abi.json \
         --function withdraw \
         --inputs 798472886190004179001673494155360729135078329522332065779728082154055368978 0 9000 \
