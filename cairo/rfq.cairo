@@ -204,8 +204,9 @@ func get_order_hash{pedersen_ptr : HashBuiltin*}(
     let (taker_maker_hash) = hash2{hash_ptr=pedersen_ptr}(
         taker_hash, maker_hash)
 
-    return hash2{hash_ptr=pedersen_ptr}(
+    let (order_hash) = hash2{hash_ptr=pedersen_ptr}(
         taker_maker_hash, salt)
+    return (order_hash)
 end
 
 @external
