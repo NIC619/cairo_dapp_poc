@@ -3,6 +3,8 @@
 ### L1 Bridge contract
 
 - L1 Bridge contract `L1Bridge.sol` is deployed at [0xA5eC539a1c7cB71555fe831D6ba18af8665d0245](https://ropsten.etherscan.io/address/0xa5ec539a1c7cb71555fe831d6ba18af8665d0245#writeContract)
+    - you can deploy `L1Bridge` contract by running `npx hardhat run scritps/deploy_l1_bridge.ts`
+    - the constructor takes in the StarkNet Core contract address which is deployed at [0xee02F29aE9A4988aE064940bF11954d6eafE26Ac](https://goerli.etherscan.io/address/0xee02F29aE9A4988aE064940bF11954d6eafE26Ac#code)
 - You will be using L1 Bridge contract to deposit into and withdraw from L2 contract
     - First, use `deposit` to deposit token into L1 Bridge contract
     - Next, use `depositToL2` to deposit the deposited token in previous step into L2 contract
@@ -11,7 +13,8 @@
 
 ### L2 RFQ contract
 
-L2 RFQ contract is deployed at [0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d](https://voyager.online/contract/0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d)
+~~L2 RFQ contract is deployed at [0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d](https://voyager.online/contract/0x07bad4531f06b1ec7db8274904a892567ba3f13efafd860bd26ed90280f4698d)~~
+Currently StarkNet state is pruned frequently so don't expect deployed contract to last.
 
 ### Or you can deploy a new contract
 
