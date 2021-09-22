@@ -1,0 +1,49 @@
+{
+    "pre_state": {
+        "fee_balances": {
+            "99": 0,
+            "133": 0
+        },
+        "balances": {
+            "0x01c3eb6d67f833a9dac3766b2f22d31299875884f3fc84ebc70c322e8fb18112": {
+                "99": 1000000,
+                "133": 5000000
+            },
+            "0x04cb42f213ed6dcfadb7b987fd31b2260334cbe404315708d17a2404fbadb11e": {
+                "99": 7500000,
+                "133": 200000
+            },
+            "0x0529196a1456a35d3ee9138dd7355cb6416fe40deade3adab76f2e66554400ef": {
+                "99": 45000,
+                "133": 11100
+            },
+            "0x02226376596c83aa0c5381b42b516bd84e604d7ff65647bab46feb7540a6544d": {
+                "105": 32090
+            }
+        }
+    },
+    "transactions": [
+        {
+            "taker_public_key": "0x01c3eb6d67f833a9dac3766b2f22d31299875884f3fc84ebc70c322e8fb18112",
+            "taker_token_id": 99,
+            "taker_token_amount": 400000,
+            "maker_public_key": "0x04cb42f213ed6dcfadb7b987fd31b2260334cbe404315708d17a2404fbadb11e",
+            "maker_token_id": 133,
+            "maker_token_amount": 70000,
+            "salt": 1334
+        },
+        {
+            "taker_public_key": "0x04cb42f213ed6dcfadb7b987fd31b2260334cbe404315708d17a2404fbadb11e",
+            "taker_token_id": 99,
+            "taker_token_amount": 190000,
+            "maker_public_key": "0x01c3eb6d67f833a9dac3766b2f22d31299875884f3fc84ebc70c322e8fb18112",
+            "maker_token_id": 133,
+            "maker_token_amount": 12000,
+            "salt": 5566,
+            "r_a": "0x0106a47a17ac482401b446f18d74e62e42e0361e336d64bce2808d88e7efd018",
+            "s_a": "0x055c17c45d6422eb6a0ab5d58adc0644b060effb3e3524b426042850b07efd5f",
+            "r_b": "0x01ab84a5cbb7d47952bcd7f89a212a7df385c44dcf52c1eebb954677bd595372",
+            "s_b": "0x037b5b693678dcd85f4cec07a650859adc74630e3a3bbe2e3807434fd1f743d2"
+        }
+    ]
+}
