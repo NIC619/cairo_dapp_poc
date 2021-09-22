@@ -1,11 +1,9 @@
 .DS_Store
-*pie
-build/
 .env
 
 node_modules
 
-#Hardhat files
+# Hardhat files
 cache
 artifacts
 
@@ -13,3 +11,9 @@ __pycache__
 .python-version
 
 .vscode
+
+# Cairo files
+*pie
+build/
+keys.json
+rfq_*.json
