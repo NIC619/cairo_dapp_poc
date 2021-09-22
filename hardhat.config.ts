@@ -9,26 +9,15 @@ export default {
     localhost: {
       url: "http://localhost:8545",
     },
-    hardhat: {
-      chainId: 3,
-      forking: {
-        url: "",
-        blockNumber: 10400800
-      }
-    },
-    // mainnet: {
-    //   chainId: 1,
-    //   url: "",
-    // },
-    // ropsten: {
-    //   chainId: 3,
-    //   url: "",
-    // }
+    goerli: {
+      chainId: 5,
+      url: "",
+    }
   },
   solidity: {
     compilers: [
       {
-        version: "0.6.12",
+        version: "0.7.6",
         settings: {
           optimizer: {
             enabled: true,

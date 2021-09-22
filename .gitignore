@@ -1,7 +1,6 @@
-*.json
 .DS_Store
 *pie
-
+build/
 .env
 
 node_modules
@@ -11,3 +10,6 @@ cache
 artifacts
 
 __pycache__
+.python-version
+
+.vscode
