@@ -16,7 +16,24 @@
 ~~L2 RFQ contract is deployed at [0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96](https://voyager.online/contract/0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96)~~
 Currently StarkNet state is pruned frequently so don't expect deployed contract to last.
 
-### Or you can deploy a new contract
+### L2 Proxy contract
+This contract is used as a contract to interact with RFQ contract, as a demonstration of L2 contract interoperability.
+
+### Or you can deploy a new set of contracts
+
+#### Compile the proxy contract
+
+- `starknet-compile cairo/proxy.cairo --output proxy_compiled.json --abi proxy_abi.json`
+
+#### Deploy
+
+- `starknet deploy --contract proxy_compiled.json --network alpha`
+    - it will output contract address and transaction id, for example:
+    ```
+    Deploy transaction was sent.
+    Contract address: 0x0250df919d12eeabc80dc2a5301faf00a6c371a20136d2a473566d9a531b5217
+    Transaction ID: 225622
+    ```
 
 #### Compile the RFQ contract
 
@@ -32,19 +49,46 @@ Currently StarkNet state is pruned frequently so don't expect deployed contract 
     Transaction ID: 203291
     ```
 
-#### Set L1 contract address
+#### Set L1 contract address in RFQ contract
 
 - invoke `set_L1_CONTRACT_ADDRESS` function on RFQ contract with param `new_L1_CONTRACT_ADDRESS`, for example,
     ```
     starknet invoke \
         --address 0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96 \
         --abi rfq_abi.json \
-        --function new_L1_CONTRACT_ADDRESS \
+        --function set_L1_CONTRACT_ADDRESS \
         --inputs 791542658165672915894689935354852738633778787178
         --network alpha
     ```
     - `791542658165672915894689935354852738633778787178` is equivalent to `L1Bridge` contract address `0x8AA60017c581eD84eeaA800482E18475CC4aF36a`
-#### Set L2 contract address
+
+#### Set Proxy contract address in RFQ contract
+
+- invoke `set_PROXY_ADDRESS` function on RFQ contract with param `new_PROXY_ADDRESS`, for example,
+    ```
+    starknet invoke \
+        --address 0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96 \
+        --abi rfq_abi.json \
+        --function set_PROXY_ADDRESS \
+        --inputs 1047516477518222647696338136122723034425990527897565148904869650456467165719
+        --network alpha
+    ```
+    - `1047516477518222647696338136122723034425990527897565148904869650456467165719` is equivalent to `Proxy` contract address `0x0250df919d12eeabc80dc2a5301faf00a6c371a20136d2a473566d9a531b5217`
+
+#### Set RFQ contract address in Proxy contract
+
+- invoke `set_RFQ_CONTRACT_ADDRESS` function on RFQ contract with param `new_RFQ_CONTRACT_ADDRESS`, for example,
+    ```
+    starknet invoke \
+        --address 0x0250df919d12eeabc80dc2a5301faf00a6c371a20136d2a473566d9a531b5217 \
+        --abi proxy_abi.json \
+        --function set_RFQ_CONTRACT_ADDRESS \
+        --inputs 1717845306189357578435387280039482404771276467351697267262645591057254153110
+        --network alpha
+    ```
+    - `1717845306189357578435387280039482404771276467351697267262645591057254153110` is equivalent to `RFQ` contract address `0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96`
+
+#### Set L2 contract address in L1Bridge contract
 
 - Execute `setL2ContractAddress` function on `L1Bridge` contract with param `l2ContractAddress`, for example, `setL2ContractAddress(0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96)`
 
@@ -158,3 +202,34 @@ Currently StarkNet state is pruned frequently so don't expect deployed contract 
     - You can see the [message sent to L1](https://voyager.online/tx/107858)
 - Finally execute the `withdrawFromL2` function on L1 Bridge contract with `user`, `token_id`, `amount`, for example, `withdrawFromL2(798472886190004179001673494155360729135078329522332065779728082154055368978, 0, 9000)`
     - You should see user `798472886190004179001673494155360729135078329522332065779728082154055368978` balance of token `0` increased by `9000`
+
+### Interact with L2 RFQ contract via Proxy contract
+
+- You can modify RFQ contract's user balance directly by invoking `Proxy` contract's `call_modify_user_balance` function, for example,
+    ```
+    starknet invoke \
+        --address 0x0250df919d12eeabc80dc2a5301faf00a6c371a20136d2a473566d9a531b5217 \
+        --abi proxy_abi.json \
+        --function call_modify_user_balance \
+        --inputs 798472886190004179001673494155360729135078329522332065779728082154055368978 0 10000
+        --network alpha
+    ```
+    - this will set token `0` of user `798472886190004179001673494155360729135078329522332065779728082154055368978` to `10000`
+    - you can query the token balances of the user to see if it matches, you can query by calling `RFQ` contract,
+        ```
+        starknet call \
+            --address 0x3cc4417c1a8124f7cee57ab011f3a862a4d08bcd1d99aa251baf9aa18057b96 \
+            --abi rfq_abi.json \
+            --function get_balance \
+            --inputs 798472886190004179001673494155360729135078329522332065779728082154055368978 0 \
+            --network alpha
+        ```
+    - or by calling `Proxy` contract,
+        ```
+        starknet call \
+            --address 0x0250df919d12eeabc80dc2a5301faf00a6c371a20136d2a473566d9a531b5217 \
+            --abi proxy_abi.json \
+            --function call_get_balance \
+            --inputs 798472886190004179001673494155360729135078329522332065779728082154055368978 0 \
+            --network alpha
+        ```
