@@ -17,3 +17,4 @@ __pycache__
 build/
 keys.json
 rfq_*.json
+proxy_*.json

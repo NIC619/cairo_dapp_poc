@@ -10,6 +10,7 @@ from starkware.cairo.common.math import (
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.starknet.common.messages import send_message_to_l1
 from starkware.starknet.common.storage import Storage
+from starkware.starknet.common.syscalls import get_caller_address
 
 const MAX_BALANCE = %[ 2**64 - 1 %]
 
@@ -48,6 +49,26 @@ func set_L1_CONTRACT_ADDRESS{
         storage_ptr : Storage*, pedersen_ptr : HashBuiltin*,
         range_check_ptr}(new_L1_CONTRACT_ADDRESS : felt):
     L1_CONTRACT_ADDRESS.write(new_L1_CONTRACT_ADDRESS)
+    return ()
+end
+
+@storage_var
+func PROXY_ADDRESS() -> (res : felt):
+end
+
+@view
+func get_PROXY_ADDRESS{
+        storage_ptr : Storage*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr}() -> (res : felt):
+    let (res) = PROXY_ADDRESS.read()
+    return (res)
+end
+
+@external
+func set_PROXY_ADDRESS{
+        storage_ptr : Storage*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr}(new_PROXY_ADDRESS : felt):
+    PROXY_ADDRESS.write(new_PROXY_ADDRESS)
     return ()
 end
 
@@ -137,7 +158,7 @@ func withdraw{
     return ()
 end
 
-func modify_user_balance{
+func _modify_user_balance{
         storage_ptr : Storage*, pedersen_ptr : HashBuiltin*,
         range_check_ptr}(
         public_key : felt, token_id : felt, amount : felt):
@@ -152,7 +173,24 @@ func modify_user_balance{
     return ()
 end
 
-func modify_fee_balance{
+@external
+func modify_user_balance{
+        syscall_ptr : felt*, storage_ptr : Storage*,
+        pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        public_key : felt, token_id : felt, amount : felt):
+    let (caller_address) = get_caller_address()
+    let (proxy_address) = get_PROXY_ADDRESS()
+    assert_not_equal(proxy_address, 0)
+    assert caller_address = proxy_address
+
+    _modify_user_balance(
+        public_key=public_key,
+        token_id=token_id,
+        amount=amount)
+    return ()
+end
+
+func _modify_fee_balance{
         storage_ptr : Storage*, pedersen_ptr : HashBuiltin*,
         range_check_ptr}(
         token_id : felt, amount : felt):
@@ -269,24 +307,24 @@ func fill_order{
         signature_s=s_b)
 
     # Update the taker and maker balance
-    modify_user_balance(
+    _modify_user_balance(
         public_key=taker_public_key,
         token_id=taker_token_id,
         amount=-taker_token_amount)
-    modify_user_balance(
+    _modify_user_balance(
         public_key=taker_public_key,
         token_id=maker_token_id,
         amount=(maker_token_amount - fee_b))
-    modify_user_balance(
+    _modify_user_balance(
         public_key=maker_public_key,
         token_id=maker_token_id,
         amount=-maker_token_amount)
-    modify_user_balance(
+    _modify_user_balance(
         public_key=maker_public_key,
         token_id=taker_token_id,
         amount=taker_token_amount)
     # Update fee balance
-    modify_fee_balance(
+    _modify_fee_balance(
         token_id=maker_token_id,
         amount=fee_b)
 
